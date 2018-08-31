@@ -137,7 +137,7 @@
                         <div class="weui-cell__hd"><label class="weui-label">获取机器码：</label></div>
                         <div class="weui-cell__bd">
                             <input class="weui-input"  id="code" type="number" pattern="^[1-9]//d*$" name="code" placeholder="请输入机器号(数字)">
-                            {{--<a href="javascript:;" class="weui-btn weui-btn_primary " id="scan">1.点击扫描二维码</a>--}}
+                            <a href="javascript:;" class="weui-btn weui-btn_primary " id="scan">1.点击扫描二维码</a>
 
                         </div>
                     </div>

@@ -16,7 +16,7 @@ class PagesController extends Controller
             $config = app('wechat.official_account')->jssdk->buildConfig(array('onMenuShareQQ', 'onMenuShareWeibo','scanQRCode'));
             return view('pages.root',compact('config'));
         }else{
-            dd("未登录");
+            return redirect('login');
         }
 
     }
