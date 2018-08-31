@@ -12,3 +12,13 @@
 */
 
 Route::get('/', 'PagesController@root')->name('root');
+
+Route::any('/wechat', 'WeChatController@serve');
+
+Route::group(['middleware' => ['web', 'wechat.oauth']], function () {
+    Route::get('/login', function () {
+        $user = session('wechat.oauth_user'); // 拿到授权用户资料
+
+        dd($user);
+    });
+});

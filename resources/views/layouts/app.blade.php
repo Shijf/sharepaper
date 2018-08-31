@@ -11,30 +11,15 @@
     <title>@yield('title', '首页') - 免费领纸巾</title>
     <!-- CSRF Token -->
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <!-- Styles -->
     <link rel="stylesheet" href="{{asset('lib/weui.min.css')}}">
     <link rel="stylesheet" href="{{asset('css/jquery-weui.css')}}">
     <link rel="stylesheet" href="{{asset('css/demos.css')}}">
-    <link href="{{ asset('css/app.css') }}" rel="stylesheet">
+    @yield('css')
 </head>
-
-<body>
-@include('layouts._header')
-<div class="weui-tab">
 
     @yield('content')
 
-</div>
-    @include('layouts._footer')
-<!-- Scripts -->
-<script src="{{ asset('lib/jquery-2.1.4.js') }}"></script>
-<script src="{{ asset('lib/fastclick.js') }}"></script>
-<script>
-    $(function() {
-        FastClick.attach(document.body);
-    });
-</script>
-<script src="{{ asset('js/jquery-weui.js') }}"></script>
-<script src="{{ asset('js/app.js') }}"></script>
+<body>
+@yield('js')
 </body>
 </html>
