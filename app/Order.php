@@ -8,7 +8,7 @@ class Order extends Model
 {
     //
     protected $fillable = [
-        'user_id', 'paper_id', 'mac','method','profit'
+        'user_id', 'paper_id', 'proxy_id','mac','method','profit'
     ];
 
     /**获取订单对应的用户

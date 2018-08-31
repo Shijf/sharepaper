@@ -58,9 +58,10 @@ class SharePaperController extends Controller
         $paper =  Paper::where('mac',$this->mac)->first();
         $paper->increment('out');
         $paper->decrement('surplus');
-        $proxy = Proxy::where('mac',$this->mac)->first();
+//        $proxy = Proxy::where('user_id',$this->user_id)->first();
+//        dd($proxy);
         //创建订单
-        $order->create($this->user_id,$this->paper->id,$this->mac,$proxy->profit);
+        $order->create($this->user_id,$this->paper->id,$this->mac,1,"0.3");
 
 
         Cache::remember('limit_daily'.$this->user_id,3,function (){
