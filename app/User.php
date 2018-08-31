@@ -15,7 +15,7 @@ class User extends Authenticatable
      * @var array
      */
     protected $fillable = [
-        'name', 'email', 'password',
+        'name', 'email', 'password','openid','nickname','headimgurl'
     ];
 
     /**
@@ -26,4 +26,25 @@ class User extends Authenticatable
     protected $hidden = [
         'password', 'remember_token',
     ];
+
+    /**
+     *  获取用户领取纸巾的所有订单
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function orders()
+    {
+        return $this->hasMany('App\Order');
+    }
+
+    /**
+     * 获取用户是哪个代理
+     */
+    public function paper()
+    {
+        return $this->hasOne('App\Paper');
+    }
+
+
+
+
 }

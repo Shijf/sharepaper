@@ -21,6 +21,7 @@ class WeChatController extends Controller
         $this->app = app('wechat.official_account');
     }
 
+
     /**
      * 处理微信的请求消息
      *
@@ -28,6 +29,7 @@ class WeChatController extends Controller
      */
     public function serve()
     {
+
         $this->app->server->push(function($message){
             switch ($message['MsgType']) {
                 case 'event':
@@ -92,21 +94,27 @@ class WeChatController extends Controller
 
     public function login()
     {
-        $user = session('wechat.oauth_user'); // 拿到授权用户资料
+        $this->user = session('wechat.oauth_user.default'); // 拿到授权用户资料
 
-        $user_openid= $user['default']['id'];
-        $userSql = User::where('openid',$user_openid)->get();
+
+        $userSql = User::where('openid',$this->user->getId())->get();
+
         if($userSql->isEmpty())
         {
+            $nickname = $this->user->getNickname();
+            $headimgurl = $this->user->getAvatar();
+            $openid = $this->user->getId();
+
             $user = User::create([
-                'openid' => $user['default']['id'],
+                'openid' => $openid,
+                'nickname' => $nickname,
+                'headimgurl' => $headimgurl,
             ]);
             Auth::login($user);
         }else
         {
             $user_info = $userSql['0'];
-            $user = User::find($user_info->id);
-            Auth::loginUsingId(1);
+            Auth::loginUsingId($user_info->id);
         }
 
         return redirect()->home();
@@ -117,19 +125,6 @@ class WeChatController extends Controller
     {
         Auth::logout();
     }
-
-    function filterEmoji($str)
-    {
-        $str = preg_replace_callback(
-            '/./u',
-            function (array $match) {
-                return strlen($match[0]) >= 4 ? '' : $match[0];
-            },
-            $str);
-
-        return $str;
-    }
-
     /**
      * 事件处理
      */

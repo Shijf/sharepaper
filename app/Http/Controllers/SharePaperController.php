@@ -4,64 +4,72 @@ namespace App\Http\Controllers;
 
 use App\Order;
 use App\Paper;
+use App\Proxy;
 use App\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
+use App\Http\Controllers\OrderController;
 use Auth;
 class SharePaperController extends Controller
 {
 
     protected $mac;
+    protected $user;
     protected $paper;
+    protected $user_id;
+    protected $user_openid;
     protected $msg = [];
+
     /**
      * 出纸
      * @param PaperStatusController $paperStatusController
      * @param Request $request
      * @return mixed
      */
-    public function getPaper(PaperStatusController $paperStatusController,Request $request)
+    public function getPaper(PaperStatusController $paperStatusController,OrderController $order,Request $request)
     {
-
-        if ($this->isStatus($request->echostr)){
+        $this->user_id = $request->user_id;
+        $status = $this->isStatus($request->echostr);
+        if ($status){
             $response = $paperStatusController->scout($this->mac);
-            return $this->Order();
+            if ($response['resultCode']=="0")
+            {
+                $this->AfterSuccessOutPaper($order);
+                $this->msg = [
+                    'code' => 1,
+                    'msg' => "出纸成功",
+                ];
+                return $this->msg;
+
+            }
+
         }else{
             return $this->msg;
         }
-
-//        if ($response['code']){
-//            $order = Order::create([
-//                'user_id' => Auth::user()->id,
-//                'proxy_id' => Auth::user()->id,
-//                'paper_id' => $mac->id,
-//                '$mac' => $mac->mac,
-//            ]);
-//        }
     }
 
     /**
      * @param array $response
      */
-    public function Order()
+    public function AfterSuccessOutPaper($order)
     {
-        $paper =  Paper::find($this->paper->id)->first();
+
+        $paper =  Paper::where('mac',$this->mac)->first();
         $paper->increment('out');
         $paper->decrement('surplus');
+        $proxy = Proxy::where('mac',$this->mac)->first();
+        //创建订单
+        $order->create($this->user_id,$this->paper->id,$this->mac,$proxy->profit);
 
-        Order::create([
-            'user_id' => Auth::user()->id,
-            'paper_id' => $this->paper->id,
-            'mac' => $this->mac,
-        ]);
 
-        Cache::remember('limit_daily'.Auth::user()->openid,1,function (){
+        Cache::remember('limit_daily'.$this->user_id,3,function (){
             return [
-                'openid' => Auth::user()->openid,
+                'openid' => $this->user_openid,
                 'time' => Carbon::now()->day,
             ];
         });
+
     }
 
     /**
@@ -70,7 +78,7 @@ class SharePaperController extends Controller
      */
     public function isStatus($code)
     {
-        return $this->getMac($code) &&  $this->isPaperEmpty($code) && $this->isFirst() ? true : false;
+        return $this->getMac($code) =="ok" &&  $this->isPaperEmpty($code) =="ok" && $this->isFirst()  =="ok"? true : false;
     }
     /**
      * 当天是否领取
@@ -78,7 +86,9 @@ class SharePaperController extends Controller
      */
     public function isFirst()
     {
-        if (Cache::has('limit_daily'.Auth::user()->openid)){
+        $openid = $this->user_openid ;
+        $cache = Cache::has('limit_daily'.$openid);
+        if ($cache){
             $this->msg = [
                 'code' => 0,
                 'msg' => "今天您已经领取过了，明天再来吧"

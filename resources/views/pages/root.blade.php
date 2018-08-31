@@ -109,14 +109,14 @@
             <div class="swiper-pagination"></div>
         </div>
         {{--内容--}}
+        @Auth
         <div class='demos-content-padded'>
                 <li>
-                    <img class=" left_item item_img"  src="{{Auth::user()->headimgurl?"https://lccdn.phphub.org/uploads/images/201808/28/18751/83L24kAU3p.png?imageView2/2/w/1240/h/0":Auth::user()->headimgurl}}" alt=""/>
-                    <span class="right_item">欢迎您，第{{Auth::user()->id}}位用户</span>
-
+                    <img class=" left_item item_img"  src="{{Auth::user()->headimgurl}}" alt=""/>
+                    <span class="right_item" style="font-size: 15px">欢迎您，第{{Auth::user()->id}}位用户</span>
                 </li>
                 <br>
-            @if(\Illuminate\Support\Facades\Cache::has('limit_daily'.Auth::user()->openid))
+            @if(\Illuminate\Support\Facades\Cache::has('limit_daily'.Auth::user()->id))
             <div class="weui-msg" >
                 <div class="weui-msg__icon-area"><i class="weui-icon-waiting weui-icon_msg"></i></div>
                 <div class="weui-msg__text-area">
@@ -136,8 +136,8 @@
                     <div class="weui-cell" id="before_scan">
                         <div class="weui-cell__hd"><label class="weui-label">获取机器码：</label></div>
                         <div class="weui-cell__bd">
-                            <input class="weui-input" hidden="hidden" id="code" type="number" pattern="^[1-9]//d*$" name="code" placeholder="请输入机器号(数字)">
-                            <a href="javascript:;" class="weui-btn weui-btn_primary " id="scan">1.点击扫描二维码</a>
+                            <input class="weui-input"  id="code" type="number" pattern="^[1-9]//d*$" name="code" placeholder="请输入机器号(数字)">
+                            {{--<a href="javascript:;" class="weui-btn weui-btn_primary " id="scan">1.点击扫描二维码</a>--}}
 
                         </div>
                     </div>
@@ -163,6 +163,7 @@
                 </form>
             @endif
         </div>
+            @endauth
     </div>
     {{--用户页--}}
 
@@ -235,10 +236,8 @@
     <script src="https://res.wx.qq.com/open/js/jweixin-1.2.0.js" type="text/javascript" charset="utf-8"></script>
     <script type="text/javascript" charset="utf-8">
 
-        {{--wx.config ({!! $config !!});--}}
+        wx.config ({!! $config !!});
 
-
-        // setTimeout(layer.closeAll(),5000);
         //
         $("#scan").bind('click',function () {
             wx.scanQRCode({
@@ -313,11 +312,12 @@
                         $.alert('您未同意协议，无法领取纸巾');
                     }
                 }else {
+                    alert($("#code").val());
                     if($("#btn").val()=="on" && $("#code").val()){
                         $("#submit").addClass('weui-btn_disabled');
                         let code = $("#code").val();
                         $.showLoading("请稍等");
-                        $.get('getpaper',{echostr:code},function (message) {
+                        $.get('getpaper',{echostr:code,user_id:{{Auth::user()->id}}},function (message) {
 
                             $.hideLoading();
 

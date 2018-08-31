@@ -15,6 +15,10 @@ class CreateProfitsTable extends Migration
     {
         Schema::create('profits', function (Blueprint $table) {
             $table->increments('id');
+            $table->integer('proxy_id');
+            $table->string('mac');
+            $table->integer('number');
+            $table->string('money');
             $table->timestamps();
         });
     }

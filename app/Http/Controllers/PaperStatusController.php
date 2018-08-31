@@ -98,7 +98,7 @@ class PaperStatusController extends Controller
      */
     public function todo($message)
     {
-        $url = "http://118.25.8.148:8080/mqclient/sendMessage";
+        $url = env('PAPER_GET_API_URL');
         $response = $this->getHttpClient()->post($url, [
             'query' => $message,
         ]);
